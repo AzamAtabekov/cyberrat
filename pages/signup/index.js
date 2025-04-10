@@ -1,0 +1,122 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+
+export default function Signup() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password || !confirmPassword) {
+      alert(" Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert(" Passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(" Registration successful!");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+      } else if (response.status === 409) {
+        alert(" User already exists.");
+      } else {
+        alert(" Error: " + data.message);
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert(" Server error. Try again later.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col justify-start">
+      <nav className="w-full flex justify-between items-center py-5 px-5">
+        <div className="flex items-center space-x-6">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image src="/MainLogo.png" alt="Logo" width={55} height={55} className="mr-1" />
+            <span className="text-2xl font-bold">͓̽C͓̽y͓̽b͓̽e͓̽r͓̽ ͓̽R͓̽a͓̽t͓̽</span>
+          </Link>
+          <Link href="/lessons" className="text-base hover:text-blue-400 mt-3 block">Lessons</Link>
+        </div>
+        <div className="flex items-center space-x-6">
+          <Link href="/login" className="text-lg text-blue-600 hover:text-blue-700">Login</Link>
+          <Link href="/signup" className="text-lg bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-md">Sign Up</Link>
+        </div>
+      </nav>
+      
+      <div className="flex flex-1 items-center justify-center px-4">
+        <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-center mb-6">Sign Up for Cyber Rat</h2>
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div>
+              <label className="block text-gray-300 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-1">Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md font-semibold transition"
+            >
+              Sign Up
+            </motion.button>
+          </form>
+          <p className="text-center text-gray-400 mt-4">
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-400 hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
